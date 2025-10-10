@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Station model for reference data
+model Station {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  uuid        String   @unique
+  ipAddress   String
+  scene       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationship to power readings
+  powerReadings PowerReading[]
+  
+  @@map("stations")
+}
+
+// Main time series data model
+model PowerReading {
+  id          String   @id @default(cuid())
+  stationId   String
+  timestamp   DateTime
+  
+  // Active Power readings (Watts)
+  activePower1  Float?
+  activePower2  Float?
+  activePower3  Float?
+  activePower4  Float?
+  activePower5  Float?
+  activePower6  Float?
+  
+  // MUX Power Meter readings (kWh)
+  muxPower1     Float?  // TV5
+  muxPower2     Float?  // MCOT
+  muxPower3     Float?  // PRD
+  muxPower4     Float?  // TPBS
+  
+  createdAt   DateTime @default(now())
+  
+  // Relationships
+  station     Station  @relation(fields: [stationId], references: [id])
+  
+  // Indexes for time series queries
+  @@index([stationId, timestamp])
+  @@index([timestamp])
+  @@map("power_readings")
+}
+
+// Metadata for tracking data sources and quality
+model DataSource {
+  id          String   @id @default(cuid())
+  source      String   // "websocket", "log_migration", "manual"
+  description String?
+  createdAt   DateTime @default(now())
+  
+  @@map("data_sources")
+}
