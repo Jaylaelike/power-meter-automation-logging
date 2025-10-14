@@ -10,7 +10,10 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:reset": "prisma migrate reset"
+    "db:reset": "prisma migrate reset",
+    "stations": "node src/utils/station-manager.js",
+    "stations:list": "node src/utils/station-manager.js list",
+    "stations:seed": "node src/utils/station-manager.js seed"
   },
   "keywords": [],
   "author": "",

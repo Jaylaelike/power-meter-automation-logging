@@ -2,21 +2,31 @@ const WebSocket = require('ws');
 const DatabaseService = require('./src/database/DatabaseService');
 
 // ==================== Configuration ====================
+// Default/fallback station configurations (used if database is unavailable)
+const defaultStations = [
+    {
+        name: "แพร่",
+        uuid: "361c85bd-d02f-4408-b6a4-b6d17dad82a4",
+        ip: "ws://10.8.1.5/ws",
+        scene: "d0cf3a77-e9dd-4419-bec0-b54ecad3e541"
+    },
+    {
+        name: "น่าน",
+        uuid: "ce4767d5-1a3f-4645-a323-a310170d911e",
+        ip: "ws://10.8.2.5/ws",
+        scene: "d0cf3a77-e9dd-4419-bec0-b54ecad3e541"
+    },
+    {
+        name: "ชุมพร",
+        uuid: "aad9190a-77b7-4d4b-906a-b96a51bed09f",
+        ip: "ws://10.3.1.5/ws",
+        scene: "d0cf3a77-e9dd-4419-bec0-b54ecad3e541"
+    }
+];
+
 const config = {
-    stations: [
-        {
-            name: "แพร่",
-            uuid: "361c85bd-d02f-4408-b6a4-b6d17dad82a4",
-            ip: "ws://10.8.1.5/ws",
-            scene: "d0cf3a77-e9dd-4419-bec0-b54ecad3e541"
-        },
-        {
-            name: "น่าน",
-            uuid: "ce4767d5-1a3f-4645-a323-a310170d911e",
-            ip: "ws://10.8.2.5/ws",
-            scene: "d0cf3a77-e9dd-4419-bec0-b54ecad3e541"
-        }
-    ],
+    stations: [], // Will be loaded dynamically from database
+    defaultStations: defaultStations, // Fallback stations
     monitoredObjects: [
         8684, 8685, 8686, 8687, 8688, 8689,  // Active Power 1-6
         18069, 18070,                         // MUX#1-2 Power Meter
@@ -410,14 +420,105 @@ class MonitorController {
         this.databaseEnabled = true; // Can be configured via environment variable
     }
 
+    // Load station configurations from database
+    async loadStationsFromDatabase() {
+        if (!this.databaseService) {
+            console.log('⚠️  Database not available, using default station configurations');
+            return config.defaultStations;
+        }
+
+        try {
+            console.log('📡 Loading station configurations from database...');
+            const dbStations = await this.databaseService.getAllStations();
+            
+            if (dbStations.length === 0) {
+                console.log('📡 No stations found in database, seeding with default configurations...');
+                await this.seedDefaultStations();
+                return config.defaultStations;
+            }
+
+            // Transform database stations to monitor config format
+            const stationConfigs = dbStations.map(station => ({
+                name: station.name,
+                uuid: station.uuid,
+                ip: station.ipAddress,
+                scene: station.scene
+            }));
+
+            console.log(`📡 Loaded ${stationConfigs.length} stations from database:`);
+            stationConfigs.forEach(station => {
+                console.log(`   - ${station.name} (${station.uuid.substring(0, 8)}...)`);
+            });
+
+            return stationConfigs;
+
+        } catch (error) {
+            console.error('❌ Failed to load stations from database:', error.message);
+            console.log('⚠️  Falling back to default station configurations');
+            return config.defaultStations;
+        }
+    }
+
+    // Seed database with default station configurations
+    async seedDefaultStations() {
+        if (!this.databaseService) {
+            return;
+        }
+
+        try {
+            console.log('🌱 Seeding database with default stations...');
+            
+            for (const stationConfig of config.defaultStations) {
+                await this.databaseService.findOrCreateStation(stationConfig);
+            }
+            
+            console.log('✅ Default stations seeded successfully');
+        } catch (error) {
+            console.error('❌ Failed to seed default stations:', error.message);
+        }
+    }
+
+    // Refresh station configurations from database (for runtime updates)
+    async refreshStationConfigurations() {
+        if (!this.databaseService) {
+            console.log('⚠️  Database not available, cannot refresh configurations');
+            return false;
+        }
+
+        try {
+            console.log('🔄 Refreshing station configurations from database...');
+            const newStations = await this.loadStationsFromDatabase();
+            
+            // Check if configurations have changed
+            const currentStationNames = config.stations.map(s => s.name).sort();
+            const newStationNames = newStations.map(s => s.name).sort();
+            
+            const hasChanges = JSON.stringify(currentStationNames) !== JSON.stringify(newStationNames);
+            
+            if (hasChanges) {
+                console.log('📡 Station configuration changes detected');
+                config.stations = newStations;
+                
+                // Note: In a production system, you might want to restart monitors here
+                // For now, we'll just update the configuration
+                console.log('⚠️  Configuration updated. Restart required for changes to take effect.');
+                return true;
+            } else {
+                console.log('📡 No station configuration changes detected');
+                return false;
+            }
+
+        } catch (error) {
+            console.error('❌ Failed to refresh station configurations:', error.message);
+            return false;
+        }
+    }
+
     // Initialize all monitors
     async initialize() {
         console.log('🚀 เริ่มต้นระบบ Monitor\n');
-        console.log(`📡 สถานีทั้งหมด: ${config.stations.length}`);
-        console.log(`⏱️  อัตราการอัพเดท: ${config.updateRate}ms`);
-        console.log(`🔄 รอบการเปลี่ยนสถานี: ${config.cycleDelay}ms`);
 
-        // Initialize database service
+        // Initialize database service first
         if (this.databaseEnabled) {
             try {
                 console.log('💾 เริ่มต้นระบบฐานข้อมูล...');
@@ -433,6 +534,12 @@ class MonitorController {
             }
         }
 
+        // Load station configurations dynamically
+        config.stations = await this.loadStationsFromDatabase();
+
+        console.log(`📡 สถานีทั้งหมด: ${config.stations.length}`);
+        console.log(`⏱️  อัตราการอัพเดท: ${config.updateRate}ms`);
+        console.log(`🔄 รอบการเปลี่ยนสถานี: ${config.cycleDelay}ms`);
         console.log(''); // Empty line for spacing
 
         // Create monitors with database service
