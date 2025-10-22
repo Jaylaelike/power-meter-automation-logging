@@ -1,24 +1,22 @@
 const WebSocket = require('ws');
 const DatabaseService = require('./src/database/DatabaseService');
+const ApiDataFetcher = require('./src/api/ApiDataFetcher');
 
 // ==================== Configuration ====================
 // Default/fallback station configurations (used if database is unavailable)
 const defaultStations = [
     {
         name: "แพร่",
-        uuid: "361c85bd-d02f-4408-b6a4-b6d17dad82a4",
         ip: "ws://10.8.1.5/ws",
         scene: "d0cf3a77-e9dd-4419-bec0-b54ecad3e541"
     },
     {
         name: "น่าน",
-        uuid: "ce4767d5-1a3f-4645-a323-a310170d911e",
         ip: "ws://10.8.2.5/ws",
         scene: "d0cf3a77-e9dd-4419-bec0-b54ecad3e541"
     },
     {
         name: "ชุมพร",
-        uuid: "aad9190a-77b7-4d4b-906a-b96a51bed09f",
         ip: "ws://10.3.1.5/ws",
         scene: "d0cf3a77-e9dd-4419-bec0-b54ecad3e541"
     }
@@ -30,13 +28,14 @@ const config = {
     monitoredObjects: [
         8684, 8685, 8686, 8687, 8688, 8689,  // Active Power 1-6
         18069, 18070,                         // MUX#1-2 Power Meter
-        73909, 73910                          // MUX#3-4 Power Meter
+        73909, 73910,                         // MUX#3-4 Power Meter
+        75428, 75429                          // MUX#5-6 Power Meter
     ],
-    updateRate: 3000,        // 3 seconds
+    updateRate: 60000,        // 1 min
     connectionTimeout: 10000, // 10 seconds
     reconnectInterval: 5000,  // 5 seconds
     maxReconnectAttempts: 5,
-    cycleDelay: 30000        // 30 seconds per station
+    cycleDelay: 60000        // 30 seconds per station
 };
 
 // ==================== Station Monitor Class ====================
@@ -64,7 +63,9 @@ class StationMonitor {
             // เพิ่ม headers เหมือน browser
             const wsOptions = {
                 headers: {
-                    'Origin': null,
+                    'Connection': 'Upgrade',
+                    'Upgrade': 'websocket',
+                    'Origin': '*',
                     'User-Agent': 'Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36',
                     'Accept-Language': 'en-US,en;q=0.9',
                     'Cache-Control': 'no-cache',
@@ -145,13 +146,18 @@ class StationMonitor {
         try {
             console.log(`[${ this.config.name }] กำลังเริ่มต้น session...`);
 
-            // Step 1: Restore Session
-            const restoreData = {
+            // Step 1: Sign In (changed from restoreSession)
+            const signInData = {
                 id: 0,
-                method: "comet.restoreSession",
+                // method: "comet.restoreSession",        
+                // method: "comet.signIn", //"comet.restoreSession"
+                method: "comet.signIn",  
                 params: [
-                    {"$class": "com.wcs.comet.shared.CoreGTLoginContext"},
-                    this.config.uuid,
+                    {"$class": "com.wcs.comet.shared.CoreGTLoginContext"}, 
+                    // uuids[UserAgent_IP],
+                    "Admin",
+                    "admin",                     
+                    // "Admin","admin", uuids[UserAgent_IP]
                     {
                         "$className": "com.wcs.comet.shared.ClientInfo",
                         userLevel: -1,
@@ -162,19 +168,20 @@ class StationMonitor {
                         ProtocolVersion: 0,
                         SID: -1,
                         USID: null,
-                        UserAgent: "Node.js Comet Client",
+                        UserAgent: "GWT Comet Client",
                         UserAgentVersion: 2,
                         UserLevel: -1,
-                        UserName: "NodeJS Monitor",
+                        UserName: "WebApp Client",
                         Admin: false,
                         Guest: false,
                         Logged: false
                     },
-                    30, 30
+                    30,
+                    30
                 ]
             };
 
-            await this.sendData(restoreData);
+            await this.sendData(signInData);
             const sessionResponse = await this.waitForMessage(msg => msg.id === 0 && msg.result?.USID);
             this.USID = sessionResponse.result.USID;
             console.log(`[${ this.config.name }] ✓ ได้รับ USID: ${this.USID.substring(0, 10)}...`);
@@ -355,7 +362,9 @@ class StationMonitor {
             18069: "MUX#1 TV5 Power Meter",
             18070: "MUX#2 MCOT Power Meter",
             73909: "MUX#3 PRD Power Meter",
-            73910: "MUX#4 TPBS Power Meter"
+            73910: "MUX#4 TPBS Power Meter",
+            75428: "MUX#5 Power Meter",
+            75429: "MUX#6 Power Meter"
         };
 
         Object.entries(this.dataBuffer).forEach(([id, value]) => {
@@ -437,17 +446,48 @@ class MonitorController {
                 return config.defaultStations;
             }
 
-            // Transform database stations to monitor config format
-            const stationConfigs = dbStations.map(station => ({
+            // Transform database stations to monitor config format (filter out incomplete stations)
+            const completeStations = [];
+            const incompleteStations = [];
+            
+            dbStations.forEach(station => {
+                // For API stations, only name and ipAddress are required
+                if (station.ipAddress && station.ipAddress.startsWith('http://') && station.ipAddress.includes('/data')) {
+                    if (station.name && station.ipAddress) {
+                        completeStations.push(station);
+                    } else {
+                        incompleteStations.push(station);
+                    }
+                }
+                // For WebSocket stations, name, ipAddress, and scene are required (no UUID needed)
+                else if (station.name && station.ipAddress && station.scene) {
+                    completeStations.push(station);
+                } else {
+                    incompleteStations.push(station);
+                }
+            });
+
+            if (incompleteStations.length > 0) {
+                console.log(`⚠️  Skipping ${incompleteStations.length} incomplete stations:`);
+                incompleteStations.forEach(station => {
+                    const missing = [];
+                    if (!station.name) missing.push('name');
+                    if (!station.ipAddress) missing.push('ipAddress');
+                    if (!station.scene && (!station.ipAddress || !station.ipAddress.includes('/data'))) missing.push('scene');
+                    console.log(`   - ${station.name || 'Unnamed'} (missing: ${missing.join(', ')})`);
+                });
+            }
+
+            const stationConfigs = completeStations.map(station => ({
                 name: station.name,
-                uuid: station.uuid,
                 ip: station.ipAddress,
                 scene: station.scene
             }));
 
             console.log(`📡 Loaded ${stationConfigs.length} stations from database:`);
             stationConfigs.forEach(station => {
-                console.log(`   - ${station.name} (${station.uuid.substring(0, 8)}...)`);
+                const typeDisplay = station.ip && station.ip.includes('/data') ? 'API' : 'WebSocket';
+                console.log(`   - ${station.name} (${typeDisplay})`);
             });
 
             return stationConfigs;
@@ -542,10 +582,17 @@ class MonitorController {
         console.log(`🔄 รอบการเปลี่ยนสถานี: ${config.cycleDelay}ms`);
         console.log(''); // Empty line for spacing
 
-        // Create monitors with database service
+        // Create monitors with database service (WebSocket or API based)
         for (const stationConfig of config.stations) {
-            const monitor = new StationMonitor(stationConfig, this.databaseService);
-            this.monitors.push(monitor);
+            if (ApiDataFetcher.isApiStation(stationConfig)) {
+                console.log(`📡 Creating API monitor for: ${stationConfig.name}`);
+                const apiMonitor = new ApiDataFetcher(stationConfig, this.databaseService);
+                this.monitors.push(apiMonitor);
+            } else {
+                console.log(`📡 Creating WebSocket monitor for: ${stationConfig.name}`);
+                const wsMonitor = new StationMonitor(stationConfig, this.databaseService);
+                this.monitors.push(wsMonitor);
+            }
         }
     }
 
@@ -590,8 +637,14 @@ class MonitorController {
 
         const promises = this.monitors.map(async (monitor) => {
             try {
-                await monitor.connect();
-                await monitor.initializeSession();
+                if (monitor instanceof ApiDataFetcher) {
+                    // API-based monitor
+                    await monitor.start();
+                } else {
+                    // WebSocket-based monitor
+                    await monitor.connect();
+                    await monitor.initializeSession();
+                }
             } catch (error) {
                 console.error(`✗ ${monitor.config.name} ล้มเหลว:`, error.message);
             }
@@ -625,7 +678,14 @@ class MonitorController {
     // Stop monitoring
     async stop() {
         this.isRunning = false;
-        this.monitors.forEach(monitor => monitor.disconnect());
+        
+        this.monitors.forEach(monitor => {
+            if (monitor instanceof ApiDataFetcher) {
+                monitor.stop();
+            } else {
+                monitor.disconnect();
+            }
+        });
         
         // Disconnect from database
         if (this.databaseService) {

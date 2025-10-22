@@ -14,9 +14,8 @@ datasource db {
 model Station {
   id          String   @id @default(cuid())
   name        String   @unique
-  uuid        String   @unique
-  ipAddress   String
-  scene       String
+  ipAddress   String?
+  scene       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
@@ -45,6 +44,8 @@ model PowerReading {
   muxPower2     Float?  // MCOT
   muxPower3     Float?  // PRD
   muxPower4     Float?  // TPBS
+  muxPower5     Float?  // Additional MUX
+  muxPower6     Float?  // Additional MUX
   
   createdAt   DateTime @default(now())
   

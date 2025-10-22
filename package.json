@@ -13,7 +13,9 @@
     "db:reset": "prisma migrate reset",
     "stations": "node src/utils/station-manager.js",
     "stations:list": "node src/utils/station-manager.js list",
-    "stations:seed": "node src/utils/station-manager.js seed"
+    "stations:seed": "node src/utils/station-manager.js seed",
+    "stations:analyze": "node src/utils/station-analyzer.js analyze",
+    "stations:check": "node src/utils/station-analyzer.js check"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,7 @@
   "dependencies": {
     "@prisma/client": "^6.17.0",
     "nodemon": "^3.1.10",
+    "papaparse": "^5.5.3",
     "prisma": "^6.17.0",
     "ws": "^8.18.3"
   }
