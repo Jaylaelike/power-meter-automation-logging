@@ -1,0 +1,34 @@
+[2025-10-22T04:16:35.757Z] [INFO] === Starting Chiang Mai WebSocket Client ===
+[2025-10-22T04:16:35.797Z] [INFO] [เชียงใหม่] เชื่อมต่อกับ WebSocket สำเร็จ
+[2025-10-22T04:16:35.797Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 0 (Sending data ID 0)
+[2025-10-22T04:16:36.801Z] [DEBUG] [เชียงใหม่] Data sent: ID 0
+[2025-10-22T04:16:44.471Z] [INFO] [เชียงใหม่] USID received: b5f59309-7a26-4d4f-ae05-4e63403fa331
+[2025-10-22T04:16:44.472Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 1 (Sending data ID 1)
+[2025-10-22T04:16:45.473Z] [DEBUG] [เชียงใหม่] Data sent: ID 1
+[2025-10-22T04:16:45.498Z] [INFO] [เชียงใหม่] ID 1 result: true
+[2025-10-22T04:16:45.500Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 2 (Sending data ID 2)
+[2025-10-22T04:16:46.502Z] [DEBUG] [เชียงใหม่] Data sent: ID 2
+[2025-10-22T04:16:46.523Z] [INFO] [เชียงใหม่] ID 2 result: true
+[2025-10-22T04:16:46.524Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 3 (Sending data ID 3)
+[2025-10-22T04:16:47.526Z] [DEBUG] [เชียงใหม่] Data sent: ID 3
+[2025-10-22T04:16:47.730Z] [INFO] [เชียงใหม่] ID 3 cached: true
+[2025-10-22T04:16:47.730Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 4 (Sending data ID 4)
+[2025-10-22T04:16:48.732Z] [DEBUG] [เชียงใหม่] Data sent: ID 4
+[2025-10-22T04:16:48.789Z] [INFO] [เชียงใหม่] ID 4 cached: true
+[2025-10-22T04:16:48.790Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 5 (Sending data ID 5)
+[2025-10-22T04:16:49.792Z] [DEBUG] [เชียงใหม่] Data sent: ID 5
+[2025-10-22T04:16:50.054Z] [INFO] [เชียงใหม่] ID 5 cached: true
+[2025-10-22T04:16:50.055Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 6 (Sending data ID 6)
+[2025-10-22T04:16:51.057Z] [DEBUG] [เชียงใหม่] Data sent: ID 6
+[2025-10-22T04:16:51.146Z] [INFO] [เชียงใหม่] ID 6 cached: true
+[2025-10-22T04:16:51.147Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 7 (Sending data ID 7)
+[2025-10-22T04:16:52.149Z] [DEBUG] [เชียงใหม่] Data sent: ID 7
+[2025-10-22T04:16:52.190Z] [INFO] [เชียงใหม่] ID 7 result: true
+[2025-10-22T04:16:52.191Z] [INFO] [เชียงใหม่] Listening for notifications...
+[2025-10-22T04:16:52.191Z] [INFO] Session established successfully
+[2025-10-22T04:16:52.388Z] [DATA] [เชียงใหม่] Meter data updated: {"8684":14260.900000000001,"8685":0,"8686":null,"8687":6040.700000000001,"8688":null,"18069":1334893.6,"18070":3498.3,"73909":null,"73910":559380.6}
+[2025-10-22T04:16:55.293Z] [DATA] [เชียงใหม่] Meter data updated: {"8684":14278.1,"8685":0,"8686":null,"8687":6040.700000000001,"8688":null,"18069":1334893.6,"18070":3498.3,"73909":null,"73910":559380.6}
+[2025-10-22T04:16:56.718Z] [INFO] Received SIGINT, shutting down...
+[2025-10-22T04:16:56.719Z] [INFO] [เชียงใหม่] Disconnecting WebSocket...
+[2025-10-22T04:16:56.742Z] [INFO] [เชียงใหม่] WebSocket connection closed
+[2025-10-22T04:16:56.742Z] [INFO] [เชียงใหม่] Attempting to reconnect (1/10)...

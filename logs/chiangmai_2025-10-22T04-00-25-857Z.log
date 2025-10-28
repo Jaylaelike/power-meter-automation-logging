@@ -1,0 +1,4 @@
+[2025-10-22T04:00:25.858Z] [INFO] === Starting Chiang Mai WebSocket Client ===
+[2025-10-22T04:00:25.900Z] [ERROR] WebSocket Error: Unexpected server response: 400
+[2025-10-22T04:00:25.900Z] [INFO] WebSocket connection closed
+[2025-10-22T04:00:25.901Z] [ERROR] Failed to connect: Unexpected server response: 400

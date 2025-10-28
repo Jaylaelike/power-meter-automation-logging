@@ -1,0 +1,23 @@
+[2025-10-22T04:30:23.594Z] [INFO] === Starting Chiang Mai WebSocket Client ===
+[2025-10-22T04:30:23.594Z] [INFO] [เชียงใหม่] Initializing database connection...
+[2025-10-22T04:30:23.599Z] [INFO] [เชียงใหม่] Database station initialized: cmh1htzuq0000663wkea8qjx6
+[2025-10-22T04:30:23.635Z] [INFO] [เชียงใหม่] เชื่อมต่อกับ WebSocket สำเร็จ
+[2025-10-22T04:30:23.635Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 0 (Sending data ID 0)
+[2025-10-22T04:30:24.638Z] [DEBUG] [เชียงใหม่] Data sent: ID 0
+[2025-10-22T04:30:50.573Z] [INFO] [เชียงใหม่] USID received: 5e5fbd41-3721-49c5-b5a4-f433d728c7db
+[2025-10-22T04:30:50.573Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 1 (Sending data ID 1)
+[2025-10-22T04:30:51.575Z] [DEBUG] [เชียงใหม่] Data sent: ID 1
+[2025-10-22T04:30:51.606Z] [INFO] [เชียงใหม่] ID 1 result: true
+[2025-10-22T04:30:51.609Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 2 (Sending data ID 2)
+[2025-10-22T04:30:52.611Z] [DEBUG] [เชียงใหม่] Data sent: ID 2
+[2025-10-22T04:30:52.778Z] [INFO] [เชียงใหม่] ID 2 result: true
+[2025-10-22T04:30:52.779Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 3 (Sending data ID 3)
+[2025-10-22T04:30:53.780Z] [DEBUG] [เชียงใหม่] Data sent: ID 3
+[2025-10-22T04:30:53.926Z] [INFO] [เชียงใหม่] ID 3 cached: true
+[2025-10-22T04:30:53.927Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 4 (Sending data ID 4)
+[2025-10-22T04:30:54.929Z] [DEBUG] [เชียงใหม่] Data sent: ID 4
+[2025-10-22T04:30:54.977Z] [INFO] [เชียงใหม่] ID 4 cached: true
+[2025-10-22T04:30:54.978Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 5 (Sending data ID 5)
+[2025-10-22T04:30:55.979Z] [DEBUG] [เชียงใหม่] Data sent: ID 5
+[2025-10-22T04:30:56.235Z] [INFO] [เชียงใหม่] ID 5 cached: true
+[2025-10-22T04:30:56.236Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 6 (Sending data ID 6)

@@ -19,10 +19,32 @@ model Station {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
-  // Relationship to power readings
+  // Relationship to power readings and monitored objects
   powerReadings PowerReading[]
+  monitoredObjects StationMonitoredObject[]
   
   @@map("stations")
+}
+
+// Station-specific monitored object IDs mapping
+model StationMonitoredObject {
+  id          String   @id @default(cuid())
+  stationId   String
+  
+  // Object type and corresponding ID
+  objectType  String   // "activePower1", "activePower2", etc.
+  objectId    Int      // The actual ID number (e.g., 8684, 8685, etc.)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  station     Station  @relation(fields: [stationId], references: [id])
+  
+  // Ensure unique combination of station and object type
+  @@unique([stationId, objectType])
+  @@index([stationId])
+  @@map("station_monitored_objects")
 }
 
 // Main time series data model

@@ -1,0 +1,6 @@
+[2025-10-22T04:30:13.873Z] [INFO] === Starting Chiang Mai WebSocket Client ===
+[2025-10-22T04:30:13.873Z] [INFO] [เชียงใหม่] Initializing database connection...
+[2025-10-22T04:30:13.878Z] [INFO] [เชียงใหม่] Database station initialized: cmh1htzuq0000663wkea8qjx6
+[2025-10-22T04:30:14.157Z] [INFO] [เชียงใหม่] เชื่อมต่อกับ WebSocket สำเร็จ
+[2025-10-22T04:30:14.158Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 0 (Sending data ID 0)
+[2025-10-22T04:30:15.162Z] [DEBUG] [เชียงใหม่] Data sent: ID 0

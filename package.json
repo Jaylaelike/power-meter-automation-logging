@@ -15,7 +15,14 @@
     "stations:list": "node src/utils/station-manager.js list",
     "stations:seed": "node src/utils/station-manager.js seed",
     "stations:analyze": "node src/utils/station-analyzer.js analyze",
-    "stations:check": "node src/utils/station-analyzer.js check"
+    "stations:check": "node src/utils/station-analyzer.js check",
+    "objects:import": "node src/utils/import-monitored-objects.js import",
+    "objects:verify": "node src/utils/import-monitored-objects.js verify",
+    "test:objects": "node test-dynamic-objects.js",
+    "test:chiang-mai": "node test-chiang-mai-objects.js",
+    "test:monitor": "node test-monitor-dynamic-objects.js",
+    "test:ranong": "node test-ranong-data-mapping.js",
+    "clear:readings": "node clear-power-readings.js --force"
   },
   "keywords": [],
   "author": "",

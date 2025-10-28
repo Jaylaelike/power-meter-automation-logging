@@ -1,0 +1,12 @@
+[2025-10-22T04:20:13.398Z] [INFO] === Starting Chiang Mai WebSocket Client ===
+[2025-10-22T04:20:13.441Z] [INFO] [เชียงใหม่] เชื่อมต่อกับ WebSocket สำเร็จ
+[2025-10-22T04:20:13.441Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 0 (Sending data ID 0)
+[2025-10-22T04:20:14.445Z] [DEBUG] [เชียงใหม่] Data sent: ID 0
+[2025-10-22T04:20:21.646Z] [INFO] [เชียงใหม่] USID received: 89410bd3-e033-4550-91cd-abff870d73c9
+[2025-10-22T04:20:21.647Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 1 (Sending data ID 1)
+[2025-10-22T04:20:22.649Z] [DEBUG] [เชียงใหม่] Data sent: ID 1
+[2025-10-22T04:20:22.681Z] [INFO] [เชียงใหม่] ID 1 result: true
+[2025-10-22T04:20:22.683Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 2 (Sending data ID 2)
+[2025-10-22T04:20:23.685Z] [DEBUG] [เชียงใหม่] Data sent: ID 2
+[2025-10-22T04:20:23.713Z] [INFO] [เชียงใหม่] ID 2 result: true
+[2025-10-22T04:20:23.714Z] [INFO] [เชียงใหม่] ส่งข้อมูลชุด ID 3 (Sending data ID 3)

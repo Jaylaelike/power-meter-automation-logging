@@ -383,6 +383,105 @@ class DatabaseService {
     }, "Find or create station");
   }
 
+  // ==================== Monitored Objects Operations ====================
+
+  /**
+   * Get monitored objects for a station
+   * @param {string} stationId - Station ID
+   * @returns {Promise<Object>} Object mapping objectType to objectId
+   */
+  async getStationMonitoredObjects(stationId) {
+    return this.executeOperation(async (prisma) => {
+      const monitoredObjects = await prisma.stationMonitoredObject.findMany({
+        where: { stationId },
+        orderBy: { objectType: 'asc' }
+      });
+
+      // Convert to object mapping for easy lookup
+      const objectMap = {};
+      const objectIds = [];
+
+      monitoredObjects.forEach(obj => {
+        objectMap[obj.objectType] = obj.objectId;
+        objectIds.push(obj.objectId);
+      });
+
+      return {
+        objectMap,
+        objectIds,
+        count: monitoredObjects.length
+      };
+    }, "Get station monitored objects");
+  }
+
+  /**
+   * Get monitored objects by station name
+   * @param {string} stationName - Station name
+   * @returns {Promise<Object>} Object mapping objectType to objectId
+   */
+  async getMonitoredObjectsByStationName(stationName) {
+    return this.executeOperation(async (prisma) => {
+      const station = await prisma.station.findUnique({
+        where: { name: stationName },
+        include: {
+          monitoredObjects: true
+        }
+      });
+
+      if (!station) {
+        throw new Error(`Station not found: ${stationName}`);
+      }
+
+      const objectMap = {};
+      const objectIds = [];
+
+      station.monitoredObjects.forEach(obj => {
+        objectMap[obj.objectType] = obj.objectId;
+        objectIds.push(obj.objectId);
+      });
+
+      return {
+        objectMap,
+        objectIds,
+        count: station.monitoredObjects.length,
+        stationId: station.id
+      };
+    }, "Get monitored objects by station name");
+  }
+
+  /**
+   * Update monitored objects for a station
+   * @param {string} stationId - Station ID
+   * @param {Object} objectMap - Object mapping objectType to objectId
+   * @returns {Promise<number>} Number of objects updated
+   */
+  async updateStationMonitoredObjects(stationId, objectMap) {
+    return this.executeOperation(async (prisma) => {
+      // Delete existing objects
+      await prisma.stationMonitoredObject.deleteMany({
+        where: { stationId }
+      });
+
+      // Create new objects
+      const objectsToCreate = Object.entries(objectMap)
+        .filter(([type, id]) => id !== null && id !== undefined)
+        .map(([objectType, objectId]) => ({
+          stationId,
+          objectType,
+          objectId: parseInt(objectId)
+        }));
+
+      if (objectsToCreate.length > 0) {
+        await prisma.stationMonitoredObject.createMany({
+          data: objectsToCreate
+        });
+      }
+
+      console.log(`✅ Updated ${objectsToCreate.length} monitored objects for station ${stationId}`);
+      return objectsToCreate.length;
+    }, "Update station monitored objects");
+  }
+
   // ==================== Power Reading Data Operations ====================
 
   /**
@@ -495,7 +594,7 @@ class DatabaseService {
       8689: "activePower6",
     };
 
-    // Map MUX Power Meter readings (IDs 18069, 18070, 73909, 73910, 75428, 75429)
+    // Map MUX Power Meter readings (IDs 18069, 18070, 73909, 73910, 75428, 75429, 224272, 18053, etc.)
     const muxPowerMap = {
       18069: "muxPower1", // TV5
       18070: "muxPower2", // MCOT
@@ -503,6 +602,13 @@ class DatabaseService {
       73910: "muxPower4", // TPBS
       75428: "muxPower5", // MUX#5
       75429: "muxPower6", // MUX#6
+      224272: "muxPower5", // ระนอง MUX#5 (alternative ID)
+      18053: "muxPower6", // สกลนคร MUX#6 (alternative ID)
+      75432: "muxPower5", // ร้อยเอ็ด MUX#5 (alternative ID)
+      75441: "muxPower5", // สุโขทัย MUX#5 (alternative ID)
+      75483: "muxPower5", // ภูเก็ต MUX#5 (alternative ID)
+      75484: "muxPower6", // ภูเก็ต MUX#6 (alternative ID)
+      75519: "muxPower6", // สิงห์บุรี MUX#6 (alternative ID)
     };
 
     // Transform Active Power readings
